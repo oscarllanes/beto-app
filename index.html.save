@@ -1,0 +1,38 @@
+<!-- ... (estilos arriba iguales) ... -->
+    <div class="stats-grid">
+      <div class="stat-item"><span class="v" id="txt-pc">0%</span><span class="l">Progreso</span></div>
+      <div class="stat-item"><span class="v" id="txt-work">0</span><span class="l">Días Fuera</span></div>
+      <div class="stat-item"><span class="v" id="txt-rem">0</span><span class="l">Restantes</span></div>
+    </div>
+<!-- ... -->
+
+<script type="module">
+  // Usamos el acceso directo de Tauri 2.0
+  const { invoke } = window.__TAURI__.core;
+
+  async function actualizar() {
+    try {
+      // Llamamos a Rust
+      const res = await invoke('get_journey_stats');
+      
+      // Escribimos los datos en los IDs del HTML
+      document.getElementById('txt-pc').innerText = res.percentage + '%';
+      document.getElementById('txt-work').innerText = res.worked;
+      document.getElementById('txt-rem').innerText = res.remaining;
+
+      // Movemos el monito de Beto
+      const beto = document.getElementById('beto-obj');
+      if (beto) {
+        const posX = res.percentage * 0.75; 
+        const posY = 35 + (res.percentage * 0.9);
+        beto.style.left = posX + '%';
+        beto.style.bottom = posY + 'px';
+      }
+    } catch (err) {
+      console.error("Error al conectar con Rust:", err);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', actualizar);
+</script>
+k
